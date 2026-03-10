@@ -1,0 +1,22 @@
+name: Nightly — Performance Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2am UTC todos los días
+  workflow_dispatch:      # también manual
+
+jobs:
+  performance:
+    name: 📈 k6 Load Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - name: Run load test
+        run: k6 run performance/scenarios/api-load.k6.js
+        env:
+          BASE_URL: ${{ secrets.STAGING_URL }}
+      - name: Run stress test
+        run: k6 run performance/scenarios/api-load.k6.js --env SCENARIO=stress
+        env:
+          BASE_URL: ${{ secrets.STAGING_URL }}

@@ -1,0 +1,26 @@
+import express from 'express'
+import cors from 'cors'
+import authRoutes from './routes/auth.routes'
+import projectRoutes from './routes/project.routes'
+import taskRoutes from './routes/task.routes'
+import { errorHandler } from './middleware/auth.middleware'
+
+export function createApp() {
+  const app = express()
+
+  app.use(cors())
+  app.use(express.json())
+
+  // Health check
+  app.get('/health', (_req, res) => res.json({ status: 'ok' }))
+
+  // Routes
+  app.use('/auth', authRoutes)
+  app.use('/projects', projectRoutes)
+  app.use('/tasks', taskRoutes)
+
+  // Error handler (must be last)
+  app.use(errorHandler)
+
+  return app
+}
