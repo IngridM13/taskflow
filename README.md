@@ -1,7 +1,71 @@
 # TaskFlow 🗂️
 
-Proyecto integrador del curso **Testing y Calidad de Software**.  
+Proyecto integrador del curso **Testing y Calidad de Software**.
 App de gestión de tareas (tipo Jira simplificado) con suite completa de tests.
+
+---
+
+## Setup rápido
+
+> **TL;DR — tres comandos y ya:**
+
+```bash
+# 1. Asegurate de tener PostgreSQL corriendo (ver abajo si no lo tenés)
+# 2. Cloná el repo y entrá a la carpeta
+bash setup.sh       # instala, migra y carga datos de prueba
+npm run dev         # levanta API + frontend
+```
+
+Abrí **http://localhost:5173** e iniciá sesión con:
+
+| Email | Contraseña |
+|-------|-----------|
+| `alice@taskflow.dev` | `Password1` |
+| `bob@taskflow.dev` | `Password1` |
+
+El script `setup.sh` es idempotente: podés correrlo todas las veces que quieras sin romper nada.
+
+---
+
+## Prerrequisitos
+
+- **Node.js 20+** — [nodejs.org](https://nodejs.org)
+- **PostgreSQL corriendo en localhost:5432**
+
+### ¿No tenés PostgreSQL? Dos opciones:
+
+**Opción A — Homebrew (macOS)**
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+```
+
+**Opción B — Docker**
+```bash
+docker run --name taskflow-db \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 -d postgres:16
+```
+
+Si usás Docker, antes de correr `setup.sh` editá `apps/api/.env` con:
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
+```
+
+---
+
+## Correr los tests
+
+```bash
+npm run test:unit         # Vitest — lógica pura, con coverage
+npm run test:integration  # Vitest + Supertest — rutas HTTP
+npm run test:bdd          # Cucumber — escenarios Gherkin
+npm run test:e2e          # Playwright — flujos completos (requiere app corriendo)
+npm run test:all          # todos en orden
+
+# Performance (requiere k6 instalado: brew install k6)
+k6 run performance/scenarios/api-load.k6.js
+```
 
 ---
 
@@ -20,127 +84,64 @@ App de gestión de tareas (tipo Jira simplificado) con suite completa de tests.
 
 ---
 
-## Estado actual
-
-> **Frontend (`apps/web`) no está implementado aún.**
-> La API (backend) está completa y todos los tests corren contra ella.
-> El comando `npm run dev` levanta solo la API; el error de `apps/web` es esperado.
-
----
-
-## Prerequisitos
-
-- Node.js 20+
-- PostgreSQL local (ver opciones abajo)
-- Docker (opcional)
-
-### Opción A — PostgreSQL del sistema (Homebrew)
-
-Si ya tenés PostgreSQL corriendo en tu máquina (puerto 5432):
-
-```bash
-createdb taskflow_dev
-```
-
-En `apps/api/.env`:
-```
-DATABASE_URL="postgresql://<tu-usuario-de-sistema>@localhost:5432/taskflow_dev"
-```
-
-### Opción B — Docker
-
-Si no tenés PostgreSQL instalado, levantá un contenedor.
-**Importante:** si ya hay un PostgreSQL del sistema corriendo en el puerto 5432, usá un puerto distinto (ej. 5433).
-
-```bash
-docker run --name taskflow-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
-```
-
-En `apps/api/.env`:
-```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
-```
-
-Para iniciar/detener el contenedor:
-```bash
-docker start taskflow-db
-docker stop taskflow-db
-```
-
----
-
-## Inicio rápido
-
-```bash
-# 1. Instalar dependencias (desde la raíz)
-npm install
-
-# 2. Configurar variables de entorno
-cp apps/api/.env.example apps/api/.env
-# Editar DATABASE_URL según la opción elegida arriba
-# Agregar JWT_SECRET=cualquier-string-secreto
-
-# 3. Aplicar migraciones
-cd apps/api
-npx prisma migrate deploy --schema=src/prisma/schema.prisma
-
-# 4. Levantar la API
-cd ../..
-npm run dev
-# API disponible en http://localhost:3001
-# (el error de apps/web es esperado — frontend pendiente)
-```
-
-> **Nota:** `npx prisma db seed` no está configurado aún. Podés ignorar ese paso.
-
----
-
-## Correr los tests
-
-```bash
-# Unit tests con coverage
-npm run test:unit
-
-# Integration tests
-npm run test:integration
-
-# BDD / Cucumber
-npm run test:bdd
-
-# E2E con Playwright (requiere app corriendo)
-npm run test:e2e
-
-# Todos
-npm run test:all
-
-# Performance (requiere k6 instalado)
-k6 run performance/scenarios/api-load.k6.js
-```
-
----
-
 ## Estructura
 
 ```
 taskflow/
-├── apps/api/          # Backend Express + TS
-│   ├── src/
-│   │   ├── routes/
-│   │   ├── services/  ← lógica de negocio + bugs intencionales
-│   │   ├── middleware/
-│   │   └── prisma/
-│   └── tests/
-│       ├── unit/      ← Vitest — lógica pura
-│       └── integration/ ← Vitest + Supertest
-├── apps/web/          # Frontend React + TS
+├── apps/
+│   ├── api/               # Backend Express + TypeScript (puerto 3001)
+│   │   ├── src/
+│   │   │   ├── routes/
+│   │   │   ├── services/  ← lógica de negocio + bugs intencionales
+│   │   │   ├── middleware/
+│   │   │   └── prisma/    ← schema, migraciones y seed
+│   │   └── tests/
+│   │       ├── unit/        ← Vitest — lógica pura
+│   │       └── integration/ ← Vitest + Supertest
+│   └── web/               # Frontend React 18 + Vite (puerto 5173)
+│       └── src/
+│           ├── api/         ← cliente Axios con interceptor JWT
+│           ├── contexts/    ← AuthContext
+│           ├── pages/       ← Login, Register, Projects, ProjectDetail, TaskDetail
+│           ├── components/  ← Navbar, TaskCard*, CommentList*
+│           └── types/       ← tipos del dominio
 ├── e2e/               # Playwright + Cucumber
 │   ├── features/      ← archivos .feature (Gherkin)
 │   ├── pages/         ← Page Object Model
 │   └── step-definitions/
 ├── performance/       ← k6 scripts
 ├── docs/adr/          ← Architecture Decision Records
+├── setup.sh           ← script de setup inicial
 └── .github/workflows/ ← CI/CD pipelines
 ```
+
+`*` Componentes con TODOs intencionales para ejercicio de estudiantes.
+
+---
+
+## Frontend (`apps/web`)
+
+| Ruta | Pantalla |
+|------|---------|
+| `/register` | Registro de usuario |
+| `/login` | Login |
+| `/projects` | Lista de proyectos |
+| `/projects/:id` | Detalle de proyecto + tareas |
+| `/projects/:id/tasks/:taskId` | Detalle de tarea + comentarios |
+
+```bash
+npm run dev:web    # solo frontend → http://localhost:5173
+npm run build:web  # build de producción
+```
+
+### TODOs para estudiantes
+
+Dos componentes tienen funcionalidad **intencionalmente incompleta**:
+
+- **`TaskCard.tsx`** — badge de color según prioridad (`LOW/MEDIUM/HIGH/CRITICAL`)
+- **`CommentList.tsx`** — formateo de fecha de cada comentario
+
+Buscá los comentarios `// TODO (estudiante):` en esos archivos.
 
 ---
 
