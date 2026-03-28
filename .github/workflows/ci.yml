@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - run: npm run lint
       - name: Type check
@@ -39,7 +39,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - name: Run unit tests with coverage
         run: npm run test:unit
@@ -79,10 +79,10 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - name: Run Prisma migrations
-        run: npx prisma migrate deploy
+        run: npx prisma migrate deploy --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - name: Run integration tests
         run: npm run test:integration
@@ -117,9 +117,9 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=src/prisma/schema.prisma
         working-directory: apps/api
-      - run: npx prisma migrate deploy
+      - run: npx prisma migrate deploy --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - name: Run BDD scenarios
         run: npm run test:bdd
@@ -155,10 +155,10 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - run: npx playwright install --with-deps chromium
-      - run: npx prisma migrate deploy && npx prisma db seed
+      - run: npx prisma migrate deploy --schema=src/prisma/schema.prisma && npx prisma db seed --schema=src/prisma/schema.prisma
         working-directory: apps/api
       - name: Run E2E tests
         run: npm run test:e2e
