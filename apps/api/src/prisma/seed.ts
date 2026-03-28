@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.info('🌱 Seeding database...')
 
   // ── Usuarios ──────────────────────────────────────────────
   const passwordHash = await bcrypt.hash('Password1', 10)
@@ -28,7 +28,7 @@ async function main() {
     create: { email: 'seed@test.com', name: 'Seed User', passwordHash },
   })
 
-  console.log(`  ✓ Usuarios: ${alice.email}, ${bob.email}, ${seed.email}`)
+  console.info(`  ✓ Usuarios: ${alice.email}, ${bob.email}, ${seed.email}`)
 
   // ── Proyecto principal (Alice) ─────────────────────────────
   const project = await prisma.project.upsert({
@@ -59,7 +59,7 @@ async function main() {
     },
   })
 
-  console.log(`  ✓ Proyectos: "${project.name}", "${seedProject.name}"`)
+  console.info(`  ✓ Proyectos: "${project.name}", "${seedProject.name}"`)
 
   // ── Tareas ─────────────────────────────────────────────────
   const tasks = await Promise.all([
@@ -128,7 +128,7 @@ async function main() {
     }),
   ])
 
-  console.log(`  ✓ Tareas: ${tasks.length} creadas`)
+  console.info(`  ✓ Tareas: ${tasks.length} creadas`)
 
   // ── Comentarios ────────────────────────────────────────────
   const taskInProgress = tasks[2] // "Agregar filtros"
@@ -153,14 +153,14 @@ async function main() {
     ],
   })
 
-  console.log('  ✓ Comentarios creados')
-  console.log('')
-  console.log('✅ Seed completo.')
-  console.log('')
-  console.log('   Usuarios de prueba (contraseña: Password1)')
-  console.log('   → alice@taskflow.dev')
-  console.log('   → bob@taskflow.dev')
-  console.log('   → seed@test.com')
+  console.info('  ✓ Comentarios creados')
+  console.info('')
+  console.info('✅ Seed completo.')
+  console.info('')
+  console.info('   Usuarios de prueba (contraseña: Password1)')
+  console.info('   → alice@taskflow.dev')
+  console.info('   → bob@taskflow.dev')
+  console.info('   → seed@test.com')
 }
 
 main()

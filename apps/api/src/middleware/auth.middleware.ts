@@ -25,8 +25,13 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   }
 }
 
+interface HttpError extends Error {
+  statusCode?: number
+}
+
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
-  const status = (err as any).statusCode ?? 500
+  const httpErr = err as HttpError
+  const status = httpErr.statusCode ?? 500
   const message = status === 500 ? 'Internal server error' : err.message
 
   if (status === 500) console.error(err)

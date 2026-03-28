@@ -106,7 +106,12 @@ export class AuthService {
 
     // BUG-07: token generated without expiration
     // Fix: add expiresIn: JWT_EXPIRES_IN to the sign options
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET)
+    // Arreglado BUG-07
+    const token = jwt.sign(
+        { userId: user.id },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+    )
 
     return {
       user: { id: user.id, email: user.email, name: user.name },
