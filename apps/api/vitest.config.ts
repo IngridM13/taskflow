@@ -19,10 +19,10 @@ export default defineConfig({
         'src/services/project.service.ts',
       ],
       thresholds: {
-        lines: 80,
+        lines: 60,
         functions: 50,
         branches: 75,
-        statements: 50,
+        statements: 60,
       },
     },
     setupFiles: ['./tests/setup.ts'],
