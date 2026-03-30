@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Status, Priority } from '@prisma/client'
 import { z } from 'zod'
 import { ForbiddenError, NotFoundError, UnprocessableError } from './auth.service'
 
@@ -20,24 +20,19 @@ export const UpdateTaskSchema = z.object({
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>
 export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>
 
-// ── Enums locales exportados (para independizarnos de la generación de Prisma en CI) ──
+// ── Enum de estados exportado (usado en validateStatusTransition) ──
 export enum TaskStatus {
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE',
 }
 
-export enum TaskPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
-}
-
 // Máquina de estados estricta para updateTask (mantiene lógica existente)
-const VALID_TRANSITIONS: Record<string, string[]> = {
+const VALID_TRANSITIONS: Record<Status, Status[]> = {
   TODO: ['IN_PROGRESS'],
   IN_PROGRESS: ['TODO', 'DONE'],
+  // BUG-01: DONE should have no valid transitions.
+  // This allows DONE -> TODO if payload includes force:true at route level.
   DONE: [],
 }
 
@@ -75,7 +70,7 @@ export class TaskService {
     })
     if (!task) throw new NotFoundError('Task not found')
 
-    const isMember = task.project.members.some((m: any) => m.userId === userId)
+    const isMember = task.project.members.some((m) => m.userId === userId)
     if (!isMember) throw new ForbiddenError('Not a project member')
 
     // Validate state transition
@@ -113,8 +108,8 @@ export class TaskService {
     projectId: string,
     userId: string,
     filters: {
-      status?: any
-      priority?: any
+      status?: Status
+      priority?: Priority
       assignedTo?: string
       search?: string
     }
