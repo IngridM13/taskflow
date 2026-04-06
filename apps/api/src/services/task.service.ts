@@ -1,6 +1,6 @@
 import { PrismaClient, Status, Priority } from '@prisma/client'
 import { z } from 'zod'
-import { ForbiddenError, NotFoundError, UnprocessableError, ValidationError } from './auth.service'
+import { ForbiddenError, NotFoundError, UnprocessableError } from './auth.service'
 
 export const MAX_CHAR_TASK_NAME = 100
 export const MIN_CHAR_TASK_NAME = 3
