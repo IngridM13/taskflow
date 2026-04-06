@@ -26,7 +26,7 @@ export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>
 // Valid state transitions
 const VALID_TRANSITIONS: Record<Status, Status[]> = {
   TODO: ['IN_PROGRESS'],
-  IN_PROGRESS: ['TODO', 'DONE'],
+  IN_PROGRESS: ['DONE'],
   // BUG-01: DONE should have no valid transitions.
   // This allows DONE -> TODO if payload includes force:true at route level.
   DONE: [],
@@ -145,6 +145,16 @@ export class TaskService {
     }
     if (title.length > MAX_CHAR_TASK_NAME) {
       throw new Error(`El título no debe tener más de ${MAX_CHAR_TASK_NAME} caracteres`);
+    }
+  }
+
+  validateStatusTransition(current: Status, next: Status) {
+    const allowed = VALID_TRANSITIONS[current]
+    if (!allowed.includes(next)) {
+      throw new Error(
+        `Transición inválida: ${current} → ${next}. ` +
+          `Allowed: ${allowed.length ? allowed.join(', ') : 'none'}`
+      )
     }
   }
 }

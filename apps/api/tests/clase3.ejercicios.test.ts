@@ -113,8 +113,8 @@ describe('TaskService.validateTitle', () => {
 
 describe('TaskService.validateStatusTransition', () => {
 
-  // TODO: instanciar el servicio con el stub
-  // const svc = new TaskService(mockTaskRepo as any);
+  // instanciar el servicio con el stub
+  const svc = new TaskService(mockTaskRepo as any);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,40 +123,33 @@ describe('TaskService.validateStatusTransition', () => {
   // ── Transiciones válidas ───────────────────────────────────
 
   it('debe permitir la transición TODO → IN_PROGRESS', () => {
-    // TODO: implementar este test
-    // Pista: TaskStatus.TODO → TaskStatus.IN_PROGRESS no debe lanzar error
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'IN_PROGRESS')).not.toThrow();
   });
 
   it('debe permitir la transición IN_PROGRESS → DONE', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'DONE')).not.toThrow();
   });
 
   // ── Transiciones inválidas ─────────────────────────────────
 
   it('debe rechazar la transición TODO → DONE (salto de estado)', () => {
-    // TODO: implementar este test
-    // El error debe incluir los nombres de los estados:
-    // "Transición de estado inválida: TODO → DONE"
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'DONE')).toThrow();
   });
 
   it('debe rechazar la transición IN_PROGRESS → TODO (retroceso)', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'TODO')).toThrow();
   });
 
   it('debe rechazar cualquier transición desde DONE (estado final)', () => {
-    // TODO: implementar este test
-    // DONE es un estado final — no puede transicionar a nada
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('DONE', 'TODO')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'IN_PROGRESS')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'DONE')).toThrow();
   });
 
   it('debe rechazar la transición al mismo estado', () => {
-    // TODO: implementar este test
-    // Ejemplo: TODO → TODO debe ser inválido
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'TODO')).toThrow();
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'IN_PROGRESS')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'DONE')).toThrow();
   });
 
 });
