@@ -2,15 +2,18 @@ import { PrismaClient, Status, Priority } from '@prisma/client'
 import { z } from 'zod'
 import { ForbiddenError, NotFoundError, UnprocessableError, ValidationError } from './auth.service'
 
+export const MAX_CHAR_TASK_NAME = 100
+export const MIN_CHAR_TASK_NAME = 3
+
 export const CreateTaskSchema = z.object({
-  title: z.string().min(3).max(200),
+  title: z.string().min(MIN_CHAR_TASK_NAME).max(MAX_CHAR_TASK_NAME),
   description: z.string().optional(),
   priority: z.nativeEnum(Priority).default('MEDIUM'),
   assignedTo: z.string().cuid().optional(),
 })
 
 export const UpdateTaskSchema = z.object({
-  title: z.string().min(3).max(200).optional(),
+  title: z.string().min(MIN_CHAR_TASK_NAME).max(MAX_CHAR_TASK_NAME).optional(),
   description: z.string().optional(),
   status: z.nativeEnum(Status).optional(),
   priority: z.nativeEnum(Priority).optional(),
@@ -131,5 +134,17 @@ export class TaskService {
       where: { projectId_userId: { projectId, userId } },
     })
     if (!member) throw new ForbiddenError('Not a project member')
+  }
+
+  validateTitle(title: string) {
+    if (!title || title.trim() === '') {
+      throw new Error('El título es requerido');
+    }
+    if (title.length < MIN_CHAR_TASK_NAME) {
+      throw new Error(`El título debe tener al menos ${MIN_CHAR_TASK_NAME} caracteres`);
+    }
+    if (title.length > MAX_CHAR_TASK_NAME) {
+      throw new Error(`El título no debe tener más de ${MAX_CHAR_TASK_NAME} caracteres`);
+    }
   }
 }
