@@ -10,6 +10,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TaskService } from '../src/services/task.service';
+import { AuthService } from '../src/services/auth.service';
+import { MAX_CHAR_TASK_NAME } from '../src/services/task.service';
+import { MIN_CHAR_TASK_NAME } from '../src/services/task.service';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // =============================================================
 // IMPORTS — ajustar según la estructura real del proyecto
@@ -58,7 +65,7 @@ function makeUser(failedAttempts: number, isLocked = false) {
 describe('TaskService.validateTitle', () => {
 
   // TODO: instanciar el servicio con el stub
-  // const svc = new TaskService(mockTaskRepo as any);
+  const svc = new TaskService(mockTaskRepo as any);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -67,44 +74,33 @@ describe('TaskService.validateTitle', () => {
   // ── Casos inválidos ────────────────────────────────────────
 
   it('debe lanzar error si el título tiene menos de 3 caracteres', () => {
-    // TODO: implementar este test
-    // Escribir PRIMERO, luego implementar validateTitle
-    expect.fail('Test no implementado — fase RED: escribí el test antes de escribir el código');
+    expect(() => svc['validateTitle']('a'.repeat(MIN_CHAR_TASK_NAME - 1))).toThrow();
   });
 
   it('debe lanzar error si el título tiene más de 100 caracteres', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('a'.repeat(MAX_CHAR_TASK_NAME + 1))).toThrow();
   });
 
   it('debe lanzar error si el título está vacío', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('')).toThrow();
   });
 
   it('debe lanzar error si el título contiene solo espacios en blanco', () => {
-    // TODO: implementar este test
-    // Pista: '   ' → error
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('   ')).toThrow();
   });
 
   // ── Casos válidos ──────────────────────────────────────────
 
   it('debe aceptar un título válido sin lanzar error', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('Mi tarea')).not.toThrow();
   });
 
   it('debe aceptar un título con exactamente 3 caracteres (valor límite inferior)', () => {
-    // TODO: implementar este test
-    // Pista: 'abc' tiene exactamente 3 caracteres → debe ser válido
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('abc')).not.toThrow();
   });
 
   it('debe aceptar un título con exactamente 100 caracteres (valor límite superior)', () => {
-    // TODO: implementar este test
-    // Pista: 'a'.repeat(100) tiene exactamente 100 caracteres → debe ser válido
-    expect.fail('Test no implementado');
+    expect(() => svc['validateTitle']('a'.repeat(MAX_CHAR_TASK_NAME))).not.toThrow();
   });
 
 });
@@ -117,8 +113,8 @@ describe('TaskService.validateTitle', () => {
 
 describe('TaskService.validateStatusTransition', () => {
 
-  // TODO: instanciar el servicio con el stub
-  // const svc = new TaskService(mockTaskRepo as any);
+  // instanciar el servicio con el stub
+  const svc = new TaskService(mockTaskRepo as any);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -127,40 +123,33 @@ describe('TaskService.validateStatusTransition', () => {
   // ── Transiciones válidas ───────────────────────────────────
 
   it('debe permitir la transición TODO → IN_PROGRESS', () => {
-    // TODO: implementar este test
-    // Pista: TaskStatus.TODO → TaskStatus.IN_PROGRESS no debe lanzar error
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'IN_PROGRESS')).not.toThrow();
   });
 
   it('debe permitir la transición IN_PROGRESS → DONE', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'DONE')).not.toThrow();
   });
 
   // ── Transiciones inválidas ─────────────────────────────────
 
   it('debe rechazar la transición TODO → DONE (salto de estado)', () => {
-    // TODO: implementar este test
-    // El error debe incluir los nombres de los estados:
-    // "Transición de estado inválida: TODO → DONE"
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'DONE')).toThrow();
   });
 
   it('debe rechazar la transición IN_PROGRESS → TODO (retroceso)', () => {
-    // TODO: implementar este test
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'TODO')).toThrow();
   });
 
   it('debe rechazar cualquier transición desde DONE (estado final)', () => {
-    // TODO: implementar este test
-    // DONE es un estado final — no puede transicionar a nada
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('DONE', 'TODO')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'IN_PROGRESS')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'DONE')).toThrow();
   });
 
   it('debe rechazar la transición al mismo estado', () => {
-    // TODO: implementar este test
-    // Ejemplo: TODO → TODO debe ser inválido
-    expect.fail('Test no implementado');
+    expect(() => svc['validateStatusTransition']('TODO', 'TODO')).toThrow();
+    expect(() => svc['validateStatusTransition']('IN_PROGRESS', 'IN_PROGRESS')).toThrow();
+    expect(() => svc['validateStatusTransition']('DONE', 'DONE')).toThrow();
   });
 
 });
