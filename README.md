@@ -2,6 +2,7 @@
 
 Proyecto integrador del curso **Testing y Calidad de Software**.
 App de gestión de tareas (tipo Jira simplificado) con suite completa de tests.
+Equipo: Facundo Acosta y Pablo Constantino
 
 ---
 
@@ -42,9 +43,7 @@ brew services start postgresql@16
 
 **Opción B — Docker**
 ```bash
-docker run --name taskflow-db \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 -d postgres:16
+docker run --name taskflow-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
 ```
 
 Si usás Docker, antes de correr `setup.sh` editá `apps/api/.env` con:
