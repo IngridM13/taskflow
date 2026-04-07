@@ -23,7 +23,7 @@
                   "pm.test('Response tiene id y email', () => {\r",
                   " const body = pm.response.json();\r",
                   " pm.expect(body.user).to.have.property('id');\r",
-                  " pm.expect(body.user.email).to.eql('facu6@ejemplo.com');\r",
+                  " pm.expect(body.user.email).to.eql('facu@ejemplo.com');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -37,7 +37,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Facundo Acosta\",\n  \"email\": \"facu6@ejemplo.com\",\n  \"password\": \"Facu123.\"\n}",
+              "raw": "{\n  \"name\": \"Facundo Acosta\",\n  \"email\": \"facu@ejemplo.com\",\n  \"password\": \"Facu123.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -280,8 +280,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status 200 OK', () => {\r",
-                  " pm.response.to.have.status(200);\r",
+                  "pm.test('Status 401 Unauthorized', () => {\r",
+                  " pm.response.to.have.status(401);\r",
                   "});"
                 ],
                 "type": "text/javascript",
